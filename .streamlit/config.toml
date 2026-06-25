@@ -1,0 +1,7 @@
+# Forca o tema claro, independente da preferencia do sistema do usuario.
+[theme]
+base = "light"
+primaryColor = "#1f6feb"
+
+[browser]
+gatherUsageStats = false

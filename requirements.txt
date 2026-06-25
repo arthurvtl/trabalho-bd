@@ -1,5 +1,11 @@
-# Este programa usa apenas a biblioteca padrao do Python (modulo sqlite3).
-# Nao ha dependencias externas para instalar.
-#
-# Basta ter o Python 3 instalado e rodar:
-#     python3 main.py
+# Dependencias do Painel do Dono (aplicacao Streamlit + MySQL no Aiven).
+# Instale com:  pip install -r requirements.txt
+
+streamlit>=1.30
+SQLAlchemy>=2.0
+PyMySQL>=1.1
+cryptography>=42
+pandas>=2.0
+
+# Observacao: a versao em terminal (main.py, que usa SQLite) NAO precisa de
+# nenhuma destas bibliotecas, pois usa apenas a biblioteca padrao do Python.

@@ -1,0 +1,5 @@
+# Este programa usa apenas a biblioteca padrao do Python (modulo sqlite3).
+# Nao ha dependencias externas para instalar.
+#
+# Basta ter o Python 3 instalado e rodar:
+#     python3 main.py

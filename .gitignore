@@ -1,0 +1,6 @@
+# Banco gerado automaticamente na primeira execucao
+ct.db
+
+# Cache do Python
+__pycache__/
+*.pyc

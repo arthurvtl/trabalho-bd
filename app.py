@@ -31,8 +31,15 @@ from banco import Banco
 DATA_MIN = date(1900, 1, 1)
 DATA_MAX = date(2100, 12, 31)
 
-# Formatacao de colunas monetarias nas tabelas
-MOEDA = st.column_config.NumberColumn(format="R$ %.2f") if hasattr(st, "column_config") else None
+def reais(valor):
+    """Formata um numero no padrao monetario brasileiro, por exemplo R$ 1.270,00."""
+    if valor is None:
+        return ""
+    # Formata com separadores no padrao americano (1,270.00) e depois troca
+    # virgula por ponto e ponto por virgula para chegar ao padrao brasileiro.
+    texto = f"{float(valor):,.2f}"
+    texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {texto}"
 
 
 # ---------------------------------------------------------------------------
@@ -156,7 +163,8 @@ def pagina_visao_geral(banco):
                 "SELECT s.nome AS Situacao, COUNT(m.id) AS Quantidade, SUM(m.valor) AS Total "
                 "FROM Mensalidade m JOIN situacao s ON m.fk_situacao_situacao_PK = s.situacao_PK "
                 "GROUP BY s.situacao_PK, s.nome ORDER BY Total DESC")
-            mostrar_tabela(financeiro, {"Total": MOEDA} if MOEDA else None)
+            financeiro = [{**linha, "Total": reais(linha["Total"])} for linha in financeiro]
+            mostrar_tabela(financeiro)
 
     coluna_a, coluna_b, coluna_c = st.columns(3)
 
@@ -169,7 +177,8 @@ def pagina_visao_geral(banco):
                 "FROM PlanoPagamento pp JOIN periodicidade per "
                 "ON pp.fk_periodicidade_periodicidade_PK = per.periodicidade_PK "
                 "GROUP BY per.periodicidade_PK, per.nome ORDER BY Total DESC")
-            mostrar_tabela(arrecadacao, {"Total": MOEDA} if MOEDA else None)
+            arrecadacao = [{**linha, "Total": reais(linha["Total"])} for linha in arrecadacao]
+            mostrar_tabela(arrecadacao)
 
     with coluna_b:
         with st.container(border=True):
@@ -204,8 +213,9 @@ def pagina_alunos(banco):
     with st.container(border=True):
         linhas = buscar(
             banco,
-            "SELECT p.id AS id, p.nome, p.cpf, p.email, p.data_nasc, "
-            "a.data_matricula, a.condicao_saude "
+            "SELECT p.id AS id, p.nome, p.cpf, p.email, "
+            "DATE_FORMAT(p.data_nasc, '%d/%m/%Y') AS data_nasc, "
+            "DATE_FORMAT(a.data_matricula, '%d/%m/%Y') AS data_matricula, a.condicao_saude "
             "FROM Aluno a JOIN Pessoa p ON a.fk_Pessoa_id = p.id ORDER BY p.id")
         mostrar_tabela(linhas)
 
@@ -217,9 +227,9 @@ def pagina_alunos(banco):
             cpf = st.text_input("CPF")
             email = st.text_input("E-mail")
             nasc = st.date_input("Data de nascimento", value=date(2005, 1, 1),
-                                 min_value=DATA_MIN, max_value=DATA_MAX)
+                                 min_value=DATA_MIN, max_value=DATA_MAX, format="DD/MM/YYYY")
             matricula = st.date_input("Data de matricula", value=date.today(),
-                                      min_value=DATA_MIN, max_value=DATA_MAX)
+                                      min_value=DATA_MIN, max_value=DATA_MAX, format="DD/MM/YYYY")
             saude = st.text_input("Condicao de saude", value="Apto")
             if st.form_submit_button("Cadastrar aluno"):
                 if not nome.strip():
@@ -254,9 +264,9 @@ def pagina_alunos(banco):
                 cpf = st.text_input("CPF", value=atual["cpf"] or "")
                 email = st.text_input("E-mail", value=atual["email"] or "")
                 nasc = st.date_input("Data de nascimento", value=atual["data_nasc"],
-                                     min_value=DATA_MIN, max_value=DATA_MAX)
+                                     min_value=DATA_MIN, max_value=DATA_MAX, format="DD/MM/YYYY")
                 matricula = st.date_input("Data de matricula", value=atual["data_matricula"],
-                                          min_value=DATA_MIN, max_value=DATA_MAX)
+                                          min_value=DATA_MIN, max_value=DATA_MAX, format="DD/MM/YYYY")
                 saude = st.text_input("Condicao de saude", value=atual["condicao_saude"] or "")
                 if st.form_submit_button("Salvar alteracoes"):
                     banco.executar(
@@ -295,7 +305,8 @@ def pagina_professores(banco):
     with st.container(border=True):
         linhas = buscar(
             banco,
-            "SELECT p.id AS id, p.nome, p.cpf, p.email, p.data_nasc "
+            "SELECT p.id AS id, p.nome, p.cpf, p.email, "
+            "DATE_FORMAT(p.data_nasc, '%d/%m/%Y') AS data_nasc "
             "FROM Professor pr JOIN Pessoa p ON pr.fk_Pessoa_id = p.id ORDER BY p.id")
         mostrar_tabela(linhas)
 
@@ -307,7 +318,7 @@ def pagina_professores(banco):
             cpf = st.text_input("CPF")
             email = st.text_input("E-mail")
             nasc = st.date_input("Data de nascimento", value=date(1990, 1, 1),
-                                 min_value=DATA_MIN, max_value=DATA_MAX)
+                                 min_value=DATA_MIN, max_value=DATA_MAX, format="DD/MM/YYYY")
             if st.form_submit_button("Cadastrar professor"):
                 if not nome.strip():
                     st.error("O nome e obrigatorio.")
@@ -337,7 +348,7 @@ def pagina_professores(banco):
                 cpf = st.text_input("CPF", value=atual["cpf"] or "")
                 email = st.text_input("E-mail", value=atual["email"] or "")
                 nasc = st.date_input("Data de nascimento", value=atual["data_nasc"],
-                                     min_value=DATA_MIN, max_value=DATA_MAX)
+                                     min_value=DATA_MIN, max_value=DATA_MAX, format="DD/MM/YYYY")
                 if st.form_submit_button("Salvar alteracoes"):
                     banco.executar(
                         "UPDATE Pessoa SET nome = :nome, cpf = :cpf, email = :email, "

@@ -34,12 +34,15 @@ class Banco:
             f"@{config.HOST}:{config.PORT}/{config.BANCO}"
         )
         # connect_args com ssl liga a conexao TLS exigida pelo Aiven.
-        # pool_pre_ping evita usar conexoes que cairam por inatividade.
+        # pool_recycle troca conexoes antigas antes que o servidor as feche,
+        # evitando erros sem precisar do "pre ping" (que custaria uma ida e
+        # volta extra ao banco a cada consulta, deixando tudo mais lento).
         self.engine = create_engine(
             url,
             connect_args={"ssl": {"ssl": {}}},
-            pool_pre_ping=True,
-            pool_recycle=280,
+            pool_recycle=180,
+            pool_size=5,
+            max_overflow=5,
         )
         self.garantir_estrutura()
 

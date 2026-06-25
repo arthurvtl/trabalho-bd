@@ -6,6 +6,3 @@ SQLAlchemy>=2.0
 PyMySQL>=1.1
 cryptography>=42
 pandas>=2.0
-
-# Observacao: a versao em terminal (main.py, que usa SQLite) NAO precisa de
-# nenhuma destas bibliotecas, pois usa apenas a biblioteca padrao do Python.

@@ -4,3 +4,7 @@ ct.db
 # Cache do Python
 __pycache__/
 *.pyc
+
+# Ambiente virtual local
+venv/
+.venv/

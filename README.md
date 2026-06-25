@@ -139,5 +139,5 @@ O codigo deve ficar disponivel em um repositorio do GitHub. Substitua a linha
 abaixo pelo endereco real apos subir o projeto:
 
 ```
-https://github.com/SEU_USUARIO/SEU_REPOSITORIO
+https://github.com/arthurvtl/trabalho-bd
 ```
